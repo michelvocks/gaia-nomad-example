@@ -230,11 +230,12 @@ func main() {
 			Key:         "MYAPP_PASS",
 			Description: "myapp db password",
 		},
-		sdk.Argument{
-			Type:        sdk.TextFieldInp,
-			Key:         "NOMAD_API",
-			Description: "Nomad API address:",
-		},
+	}
+
+	nomadArg := sdk.Argument{
+		Type:        sdk.TextFieldInp,
+		Key:         "NOMAD_API",
+		Description: "Nomad API address:",
 	}
 
 	jobs := sdk.Jobs{
@@ -242,7 +243,7 @@ func main() {
 			Title:       "Deploy Application",
 			Handler:     DeployApplication,
 			Description: "deploy the application with database",
-			Args:        args,
+			Args:        append(args, nomadArg),
 		},
 		sdk.Job{
 			Title:       "Wait for DB",
