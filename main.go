@@ -176,16 +176,36 @@ func convArgsToMap(args sdk.Arguments) map[string]string {
 }
 
 func main() {
+	args := sdk.Arguments{
+		sdk.Argument{
+			Type:        sdk.VaultInp,
+			Key:         "MYAPP_HOST",
+			Description: "myapp db host",
+		},
+		sdk.Argument{
+			Type:        sdk.VaultInp,
+			Key:         "MYAPP_USER",
+			Description: "myapp db user",
+		},
+		sdk.Argument{
+			Type:        sdk.VaultInp,
+			Key:         "MYAPP_PASS",
+			Description: "myapp db password",
+		},
+	}
+
 	jobs := sdk.Jobs{
 		sdk.Job{
-			Title: "Deploy Application",
-			Handler: DeployApplication,
+			Title:       "Deploy Application",
+			Handler:     DeployApplication,
 			Description: "deploy the application with database",
+			Args:        args,
 		},
 		sdk.Job{
-			Title: "Import test data",
-			Handler: DBImportTestData,
+			Title:       "Import test data",
+			Handler:     DBImportTestData,
 			Description: "import test data into application database",
+			Args:        args,
 		},
 	}
 
