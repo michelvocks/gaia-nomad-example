@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	sdk "github.com/gaia-pipeline/gosdk"
 	_ "github.com/go-sql-driver/mysql"
@@ -166,6 +168,42 @@ func DeployApplication(args sdk.Arguments) error {
 	return nil
 }
 
+func WaitForDB(args sdk.Arguments) error {
+	// Convert args
+	argsMap := convArgsToMap(args)
+
+	// Set timeout time
+	timeout := time.Now().Add(time.Second * 60)
+	for {
+		if time.Now().After(timeout) {
+			return errors.New("timeout: failed to wait for db startup")
+		}
+
+		// Test db connection
+		if testDB(argsMap) {
+			return nil
+		}
+
+		// Sleep some time
+		time.Sleep(time.Second * 3)
+	}
+}
+
+// testDB tests if a database is available
+func testDB(argsMap map[string]string) bool {
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/myappdb", argsMap["MYAPP_USER"], argsMap["MYAPP_PASS"], argsMap["MYAPP_HOST"]))
+	if err != nil {
+		return false
+	}
+	defer db.Close()
+
+	// Ping
+	if err = db.Ping(); err != nil {
+		return false
+	}
+	return true
+}
+
 func convArgsToMap(args sdk.Arguments) map[string]string {
 	// Extract arguments
 	argsMap := map[string]string{}
@@ -207,11 +245,18 @@ func main() {
 			Args:        args,
 		},
 		sdk.Job{
+			Title:       "Wait for DB",
+			Handler:     WaitForDB,
+			Description: "wait for database to come up",
+			Args:        args,
+			DependsOn:   []string{"Deploy Application"},
+		},
+		sdk.Job{
 			Title:       "Import test data",
 			Handler:     DBImportTestData,
 			Description: "import test data into application database",
 			Args:        args,
-			DependsOn:   []string{"Deploy Application"},
+			DependsOn:   []string{"Wait for DB"},
 		},
 	}
 

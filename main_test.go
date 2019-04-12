@@ -32,6 +32,17 @@ func TestDeployApplication(t *testing.T) {
 }
 
 func TestDBImportTestData(t *testing.T) {
+	// Deploy application and DB
+	if err := DeployApplication(args); err != nil {
+		t.Fatal(err)
+	}
+
+	// Wait for DB
+	if err := WaitForDB(args); err != nil {
+		t.Fatal(err)
+	}
+
+	// Insert test data
 	if err := DBImportTestData(args); err != nil {
 		t.Fatal(err)
 	}
