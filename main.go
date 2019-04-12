@@ -33,53 +33,6 @@ var (
 	}
 )
 
-func DBImportTestData(args sdk.Arguments) error {
-	// Convert args
-	argsMap := convArgsToMap(args)
-
-	// Open DB connection
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/myappdb", argsMap["MYAPP_USER"], argsMap["MYAPP_PASS"], argsMap["MYAPP_HOST"]))
-	if err != nil {
-		log.Printf("failed to connect to database. Error: %s", err.Error())
-		return err
-	}
-	defer db.Close()
-
-	// Drop table if exists
-	dropTable, err := db.Query("DROP TABLE IF EXISTS names;")
-	if err != nil {
-		log.Printf("failed to drop table. Error: %s", err.Error())
-		return err
-	}
-	defer dropTable.Close()
-
-	// Create table
-	insertTable, err := db.Query("CREATE TABLE names (name VARCHAR(20));")
-	if err != nil {
-		log.Printf("failed to create table. Error: %s", err.Error())
-		return err
-	}
-	defer insertTable.Close()
-
-	// Insert test data
-	insertData, err := db.Prepare("INSERT INTO names VALUES( ? )")
-	if err != nil {
-		log.Printf("failed to prepare statement. Error: %s", err.Error())
-		return err
-	}
-	defer insertData.Close()
-
-	for _, name := range testData {
-		_, err = insertData.Exec(name)
-		if err != nil {
-			log.Printf("failed to insert test data. Error: %s", err.Error())
-			return err
-		}
-	}
-
-	return nil
-}
-
 func DeployApplication(args sdk.Arguments) error {
 	// Convert args
 	argsMap := convArgsToMap(args)
@@ -187,6 +140,53 @@ func WaitForDB(args sdk.Arguments) error {
 		// Sleep some time
 		time.Sleep(time.Second * 3)
 	}
+}
+
+func DBImportTestData(args sdk.Arguments) error {
+	// Convert args
+	argsMap := convArgsToMap(args)
+
+	// Open DB connection
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/myappdb", argsMap["MYAPP_USER"], argsMap["MYAPP_PASS"], argsMap["MYAPP_HOST"]))
+	if err != nil {
+		log.Printf("failed to connect to database. Error: %s", err.Error())
+		return err
+	}
+	defer db.Close()
+
+	// Drop table if exists
+	dropTable, err := db.Query("DROP TABLE IF EXISTS names;")
+	if err != nil {
+		log.Printf("failed to drop table. Error: %s", err.Error())
+		return err
+	}
+	defer dropTable.Close()
+
+	// Create table
+	insertTable, err := db.Query("CREATE TABLE names (name VARCHAR(20));")
+	if err != nil {
+		log.Printf("failed to create table. Error: %s", err.Error())
+		return err
+	}
+	defer insertTable.Close()
+
+	// Insert test data
+	insertData, err := db.Prepare("INSERT INTO names VALUES( ? )")
+	if err != nil {
+		log.Printf("failed to prepare statement. Error: %s", err.Error())
+		return err
+	}
+	defer insertData.Close()
+
+	for _, name := range testData {
+		_, err = insertData.Exec(name)
+		if err != nil {
+			log.Printf("failed to insert test data. Error: %s", err.Error())
+			return err
+		}
+	}
+
+	return nil
 }
 
 // testDB tests if a database is available
