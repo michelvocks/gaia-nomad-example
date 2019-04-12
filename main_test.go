@@ -8,16 +8,20 @@ import (
 
 var args = sdk.Arguments{
 	sdk.Argument{
-		Key: "MYAPP_HOST",
+		Key:   "MYAPP_HOST",
 		Value: "127.0.0.1:3306",
 	},
 	sdk.Argument{
-		Key: "MYAPP_USER",
+		Key:   "MYAPP_USER",
 		Value: "root",
 	},
 	sdk.Argument{
-		Key: "MYAPP_PASS",
+		Key:   "MYAPP_PASS",
 		Value: "mysecretpw",
+	},
+	sdk.Argument{
+		Key:   "NOMAD_API",
+		Value: "127.0.0.1",
 	},
 }
 

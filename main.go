@@ -79,11 +79,11 @@ func DBImportTestData(args sdk.Arguments) error {
 }
 
 func DeployApplication(args sdk.Arguments) error {
-	// Setup config
-	conf := &api.Config{Address: "http://127.0.0.1:4646"}
-
 	// Convert args
 	argsMap := convArgsToMap(args)
+
+	// Setup config
+	conf := &api.Config{Address: fmt.Sprintf("http://%s:4646", argsMap["NOMAD_API"])}
 
 	// Create client instance
 	client, err := api.NewClient(conf)
@@ -192,6 +192,11 @@ func main() {
 			Key:         "MYAPP_PASS",
 			Description: "myapp db password",
 		},
+		sdk.Argument{
+			Type:        sdk.TextFieldInp,
+			Key:         "NOMAD_API",
+			Description: "Nomad API address:",
+		},
 	}
 
 	jobs := sdk.Jobs{
@@ -206,6 +211,7 @@ func main() {
 			Handler:     DBImportTestData,
 			Description: "import test data into application database",
 			Args:        args,
+			DependsOn:   []string{"Deploy Application"},
 		},
 	}
 
