@@ -107,7 +107,7 @@ func DeployApplication(args sdk.Arguments) error {
 						"image": "michelvocks/myapp:latest",
 					},
 					Env: map[string]string{
-						"MYAPP_DB_HOST":     argsMap["MYAPP_HOST"],
+						"MYAPP_DB_HOST":     "host.docker.internal:3306",
 						"MYAPP_DB_USERNAME": argsMap["MYAPP_USER"],
 						"MYAPP_DB_PASSWORD": argsMap["MYAPP_PASS"],
 					},
